@@ -1,1 +1,1 @@
-# vite-deno-resolve
+# vite_deno_resolve

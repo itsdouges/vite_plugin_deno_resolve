@@ -24,7 +24,11 @@ export default function denoResolve() {
       dirs = await denoCacheDirs();
     },
 
-    async resolveId(importee: string, importer: string, resolveOpts: any): any {
+    async resolveId(
+      importee: string,
+      importer: string,
+      resolveOpts: any,
+    ): Promise<any> {
       if (/^\/|\0|\./.test(importee)) {
         // Ignore imports starting with [\0, ., /].
         return null;

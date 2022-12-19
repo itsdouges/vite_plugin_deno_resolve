@@ -1,4 +1,7 @@
 {
+  "tasks": {
+    "check": "deno check mod.ts"
+  },
   "fmt": {
     "options": {
       "singleQuote": true
