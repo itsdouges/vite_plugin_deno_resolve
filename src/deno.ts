@@ -1,13 +1,5 @@
-import { dirname, join } from 'https://deno.land/std@0.103.0/path/mod.ts';
-
-export interface CacheDirs {
-  'denoDir': string;
-  'modulesCache': string;
-  'npmCache': string;
-  'typescriptCache': string;
-  'registryCache': string;
-  'originStorage': string;
-}
+import { dirname } from 'https://deno.land/std@0.103.0/path/mod.ts';
+import { CacheDirs } from './types.ts';
 
 export async function denoCache(name: string): Promise<void> {
   const p = Deno.run({
@@ -18,36 +10,6 @@ export async function denoCache(name: string): Promise<void> {
   if (!status.success) {
     throw new Error('could not cache ' + name);
   }
-}
-
-export async function npmPkgPaths(info: ModuleInfo, dirs: CacheDirs) {
-  const specifier = info.modules[0];
-  const packages = specifier.npmPackage.split('_');
-  const [, packageName] = /(.+)@(\d+.\d+.\d)+/.exec(packages[0])!;
-
-  const path = join(
-    dirs.npmCache,
-    'registry.npmjs.org',
-    packageName,
-  );
-
-  for await (const dirEntry of Deno.readDir(path)) {
-    if (dirEntry.isDirectory) {
-      const pkgJson = await import(join(path, dirEntry.name, 'package.json'), {
-        assert: { type: 'json' },
-      }).then((mod) => mod.default);
-
-      const pkgPath = join(path, dirEntry.name);
-
-      return {
-        path: pkgPath,
-        module: pkgJson.module ? join(pkgPath, pkgJson.module) : undefined,
-        main: pkgJson.main ? join(pkgPath, pkgJson.main) : undefined,
-      };
-    }
-  }
-
-  throw new Error('not found :-(');
 }
 
 export async function denoCacheDirs(): Promise<CacheDirs> {
@@ -93,31 +55,6 @@ export async function denoInfo(name: string): Promise<ModuleInfo> {
   return parsed;
 }
 
-export async function readLink(path: string) {
-  const parts: string[] = path.split('/');
-  const dropped: string[] = [];
-  let levels = 10;
-
-  while (levels) {
-    try {
-      const link = await Deno.readLink(parts.join('/'));
-      dropped.reverse();
-      return link + '/' + dropped.join('/');
-    } catch (_) {
-      //
-    }
-
-    levels -= 1;
-
-    const drop = parts.pop();
-    if (drop) {
-      dropped.push(drop);
-    }
-  }
-
-  return path;
-}
-
 export async function findParentFile(
   fileName: string,
   from: string,
@@ -126,7 +63,7 @@ export async function findParentFile(
   let actualFrom = from;
 
   if (followSymlinks) {
-    actualFrom = await readLink(from);
+    actualFrom = await Deno.realPath(from);
   }
 
   let filePath = dirname(actualFrom) + '/';
