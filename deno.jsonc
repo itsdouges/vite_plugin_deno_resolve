@@ -1,8 +1,8 @@
 {
   "tasks": {
-    "check": "deno check mod.ts",
-    "https": "deno run -A npm:vite@3.2.4 examples/https --config vite.config.mjs",
-    "npm": "deno run -A npm:vite@3.2.4 examples/npm --config vite.config.mjs"
+    "check": "deno check mod.ts vite.config.mts",
+    "https": "deno run -A npm:vite@3.2.4 examples/https --config vite.config.mts",
+    "npm": "deno run -A npm:vite@3.2.4 examples/npm --config vite.config.mts"
   },
   "fmt": {
     "options": {

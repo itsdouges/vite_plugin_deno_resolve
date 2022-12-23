@@ -18,7 +18,7 @@ export default function httpsResolve(config: PluginConfig) {
   return {
     name: 'vite:deno-https-resolve',
 
-    enforce: 'pre',
+    enforce: 'pre' as const,
 
     transform(code: string) {
       if (code.indexOf('from \'https://') === -1) {
@@ -37,7 +37,7 @@ export default function httpsResolve(config: PluginConfig) {
       return replaced;
     },
 
-    async resolveId(importee: string, importer: string) {
+    async resolveId(importee: string, importer: string | undefined) {
       if (importee.indexOf(DENO_SPECIFIER) === 0) {
         // We have found a top level import for a Deno module.
         const specifier = toHttpsSpecifier(importee);
@@ -47,7 +47,7 @@ export default function httpsResolve(config: PluginConfig) {
         return importee;
       }
 
-      if (importer.indexOf(DENO_SPECIFIER) === 0) {
+      if (importer && importer.indexOf(DENO_SPECIFIER) === 0) {
         // We've found an import inside a deno module, let's find it!
         const specifier = toHttpsSpecifier(importer);
         const info = await deno.info(specifier);

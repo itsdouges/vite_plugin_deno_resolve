@@ -4,7 +4,7 @@ export default function npmResolve({}: PluginConfig) {
   return {
     name: 'vite:deno-npm-resolve',
 
-    enforce: 'pre',
+    enforce: 'pre' as const,
 
     resolveId() {
       return null;
