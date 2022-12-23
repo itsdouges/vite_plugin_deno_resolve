@@ -1,5 +1,5 @@
 import { dirname } from 'https://deno.land/std@0.103.0/path/mod.ts';
-import { CacheDirs } from './types.ts';
+import { CacheDirs, ModuleInfo } from './types.ts';
 
 export async function denoCache(name: string): Promise<void> {
   const p = Deno.run({
@@ -27,15 +27,6 @@ export async function denoCacheDirs(): Promise<CacheDirs> {
   const output = await p.output();
   const parsed: CacheDirs = JSON.parse(new TextDecoder().decode(output));
   return parsed;
-}
-
-interface ModuleInfo {
-  roots: string[];
-  modules: { kind: 'npm'; specifier: string; npmPackage: string }[];
-  npmPackages: Record<
-    string,
-    { name: string; version: string; dependencies: string[] }
-  >;
 }
 
 export async function denoInfo(name: string): Promise<ModuleInfo> {
