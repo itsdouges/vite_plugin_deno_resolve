@@ -1,4 +1,4 @@
-import { Module, ModuleInfo, PluginConfig } from './types.ts';
+import { CacheInfo, Module, ModuleInfo, PluginConfig } from './types.ts';
 
 export function createDeno(
   { cacheCache, infoCache, moduleCache, tempDirectory }: PluginConfig,
@@ -66,9 +66,28 @@ export function createDeno(
     return moduleInfo;
   }
 
+  async function cacheInfo(): Promise<CacheInfo> {
+    const p = Deno.run({
+      cmd: [Deno.execPath(), 'info', '--json'],
+      stdout: 'piped',
+      stderr: 'piped',
+      cwd: tempDirectory,
+    });
+
+    const status = await p.status();
+    if (!status.success) {
+      throw new Error(`invariant: could not get info on ${name}`);
+    }
+
+    const output = await p.output();
+    const cacheInfo: CacheInfo = JSON.parse(new TextDecoder().decode(output));
+    return cacheInfo;
+  }
+
   return {
     cache,
     info,
     module,
+    cacheInfo,
   };
 }

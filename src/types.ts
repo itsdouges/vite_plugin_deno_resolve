@@ -56,6 +56,15 @@ export interface ModuleInfo {
   roots: string[];
 }
 
+export interface CacheInfo {
+  denoDir: string;
+  modulesCache: string;
+  npmCache: string;
+  typescriptCache: string;
+  registryCache: string;
+  originStorage: string;
+}
+
 export interface PluginConfig {
   cacheCache: CacheCache;
   infoCache: InfoCache;
