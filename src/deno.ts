@@ -1,7 +1,14 @@
 import { dirname } from 'https://deno.land/std@0.103.0/path/mod.ts';
-import { CacheDirs, ModuleInfo } from './types.ts';
+import { ModuleInfo } from './types.ts';
+
+const cacheCache = new Map<string, true>();
+const infoCache = new Map<string, ModuleInfo>();
 
 export async function denoCache(name: string): Promise<void> {
+  if (cacheCache.has(name)) {
+    return;
+  }
+
   const p = Deno.run({
     cmd: ['deno', 'cache', name],
   });
@@ -10,26 +17,16 @@ export async function denoCache(name: string): Promise<void> {
   if (!status.success) {
     throw new Error('could not cache ' + name);
   }
-}
 
-export async function denoCacheDirs(): Promise<CacheDirs> {
-  const p = Deno.run({
-    cmd: ['deno', 'info', '--json'],
-    stdout: 'piped',
-    stderr: 'piped',
-  });
-
-  const status = await p.status();
-  if (!status.success) {
-    throw new Error('could not read deno cache dirs');
-  }
-
-  const output = await p.output();
-  const parsed: CacheDirs = JSON.parse(new TextDecoder().decode(output));
-  return parsed;
+  cacheCache.set(name, true);
 }
 
 export async function denoInfo(name: string): Promise<ModuleInfo> {
+  const cachedInfo = infoCache.get(name);
+  if (cachedInfo) {
+    return cachedInfo;
+  }
+
   const p = Deno.run({
     cmd: ['deno', 'info', name, '--json'],
     stdout: 'piped',
@@ -43,6 +40,9 @@ export async function denoInfo(name: string): Promise<ModuleInfo> {
 
   const output = await p.output();
   const parsed: ModuleInfo = JSON.parse(new TextDecoder().decode(output));
+
+  infoCache.set(name, parsed);
+
   return parsed;
 }
 
