@@ -23,7 +23,7 @@ export default function httpsResolve() {
     },
 
     async resolveId(importee: string, importer: string) {
-      if (importee.startsWith('deno:')) {
+      if (importee.indexOf('deno:') === 0) {
         // We have found a top level import for a Deno module.
         const specifier = importee.replace('deno:', '');
 
@@ -32,7 +32,7 @@ export default function httpsResolve() {
         return specifier;
       }
 
-      if (importer.indexOf('https://') >= 0) {
+      if (importer.indexOf('https://') === 0) {
         // We've found an import inside a deno module, let's find it!
         const info = await denoInfo(importer);
         const module = info.modules.find((mod): mod is ESModule =>
@@ -52,11 +52,11 @@ export default function httpsResolve() {
       return null;
     },
 
-    async load(specifier: string) {
-      if (specifier.indexOf('https://') >= 0) {
-        const info = await denoInfo(specifier);
+    async load(id: string) {
+      if (id.indexOf('https://') === 0) {
+        const info = await denoInfo(id);
         const module = info.modules.find((mod): mod is ESModule =>
-          mod.specifier === specifier
+          mod.specifier === id
         );
 
         if (module) {
