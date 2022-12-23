@@ -1,11 +1,18 @@
 {
   "tasks": {
     "check": "deno check mod.ts",
-    "https": "deno run -A npm:vite@3.2.4 examples/https --config vite.config.mjs"
+    "https": "deno run -A npm:vite@3.2.4 examples/https --config vite.config.mjs",
+    "npm": "deno run -A npm:vite@3.2.4 examples/npm --config vite.config.mjs"
   },
   "fmt": {
     "options": {
       "singleQuote": true
     }
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "npm:react@18.2.0",
+    "lib": ["dom", "dom.iterable", "dom.asynciterable", "deno.ns"],
+    "types": ["vite/client"]
   }
 }

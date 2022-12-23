@@ -1,6 +1,6 @@
 import { PluginConfig } from './types.ts';
 
-export default function npmResolve(_: PluginConfig) {
+export default function npmResolve({}: PluginConfig) {
   return {
     name: 'vite:deno-npm-resolve',
 
