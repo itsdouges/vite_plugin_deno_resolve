@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this
 project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.3.0 - 2022-12-23
+
+### Added
+
+- Calls to the Deno CLI are now cached for the duration of the session.
+
 ## 0.2.0 - 2022-12-23
 
 ### Changed
