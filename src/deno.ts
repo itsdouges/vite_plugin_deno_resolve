@@ -1,7 +1,7 @@
-import { ModuleInfo, PluginConfig } from './types.ts';
+import { Module, ModuleInfo, PluginConfig } from './types.ts';
 
 export function createDeno(
-  { cacheCache, infoCache, tempDirectory }: PluginConfig,
+  { cacheCache, infoCache, moduleCache, tempDirectory }: PluginConfig,
 ) {
   async function cache(name: string): Promise<void> {
     if (cacheCache.has(name)) {
@@ -23,6 +23,16 @@ export function createDeno(
     cacheCache.set(name, true);
   }
 
+  async function module(name: string): Promise<Module | undefined> {
+    const foundModule = moduleCache.get(name);
+    if (!foundModule) {
+      await info(name);
+      return moduleCache.get(name);
+    }
+
+    return foundModule;
+  }
+
   async function info(name: string): Promise<ModuleInfo> {
     const cachedInfo = infoCache.get(name);
     if (cachedInfo) {
@@ -42,17 +52,22 @@ export function createDeno(
     }
 
     const output = await p.output();
-    const parsed: ModuleInfo = JSON.parse(new TextDecoder().decode(output));
+    const moduleInfo: ModuleInfo = JSON.parse(new TextDecoder().decode(output));
 
-    infoCache.set(name, parsed);
+    infoCache.set(name, moduleInfo);
+
+    for (const module of moduleInfo.modules) {
+      moduleCache.set(module.specifier, module);
+    }
 
     p.close();
 
-    return parsed;
+    return moduleInfo;
   }
 
   return {
     cache,
     info,
+    module,
   };
 }

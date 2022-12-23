@@ -54,11 +54,11 @@ export default function httpsResolve(config: PluginConfig) {
         const module = info.modules.find((mod): mod is ESModule =>
           mod.specifier === specifier
         );
-        const dependency = module?.dependencies.find((dep) =>
+        const dependency = module?.dependencies?.find((dep) =>
           dep.specifier === importee
         );
 
-        if (!dependency || !dependency.code) {
+        if (!dependency) {
           throw new Error(
             `invariant: module ${importee} in ${importer} not found during id resolution`,
           );
@@ -73,11 +73,7 @@ export default function httpsResolve(config: PluginConfig) {
     async load(id: string) {
       if (id.indexOf(DENO_SPECIFIER) === 0) {
         const specifier = toHttpsSpecifier(id);
-        const info = await deno.info(specifier);
-        const module = info.modules.find((mod): mod is ESModule =>
-          mod.specifier === specifier
-        );
-
+        const module = await deno.module(specifier);
         if (!module) {
           throw new Error(`invariant: module ${id} not found during load`);
         }

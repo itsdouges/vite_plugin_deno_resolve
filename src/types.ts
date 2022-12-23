@@ -1,9 +1,3 @@
-export interface NPMModule {
-  kind: 'npm';
-  specifier: string;
-  npmPackage: string;
-}
-
 export type MediaType =
   | 'JavaScript'
   | 'Mjs'
@@ -22,6 +16,14 @@ export type MediaType =
   | 'SourceMap'
   | 'Unknown';
 
+export interface NPMModule {
+  kind: 'npm';
+  specifier: string;
+  npmPackage: string;
+  local: string;
+  emit: string;
+}
+
 export interface ESModule {
   kind: 'esm';
   specifier: string;
@@ -30,7 +32,7 @@ export interface ESModule {
   map: string | null;
   size: number;
   mediaType: MediaType;
-  dependencies: {
+  dependencies?: {
     specifier: string;
     code: {
       specifier: string;
@@ -42,9 +44,12 @@ export interface ESModule {
   }[];
 }
 
+export type Module = ESModule | NPMModule;
+
 export interface ModuleInfo {
   roots: string[];
-  modules: (NPMModule | ESModule)[];
+  modules: Module[];
+  redirects: Record<string, string>;
   npmPackages: Record<
     string,
     { name: string; version: string; dependencies: string[] }
@@ -54,9 +59,12 @@ export interface ModuleInfo {
 export interface PluginConfig {
   cacheCache: CacheCache;
   infoCache: InfoCache;
+  moduleCache: ModuleCache;
   tempDirectory: string;
 }
 
 export type CacheCache = Map<string, true>;
 
 export type InfoCache = Map<string, ModuleInfo>;
+
+export type ModuleCache = Map<string, Module>;
