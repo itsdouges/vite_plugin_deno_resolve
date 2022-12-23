@@ -2,6 +2,7 @@ import { denoCache, denoInfo } from './deno.ts';
 import type { ESModule } from './types.ts';
 
 const DENO_SPECIFIER = 'deno:';
+const HTTP_IMPORT_REGEX = /from ("|')(https:\/\/.+)("|')/g;
 
 function toHttpsSpecifier(specifier: string) {
   return specifier.replace(DENO_SPECIFIER, 'https://');
@@ -25,7 +26,7 @@ export default function httpsResolve() {
       // We want to prepend any https imports with "deno:" so it can be picked
       // up by resolvedId(), else it skips it entirely and is loaded as native esm.
       const replaced = code.replaceAll(
-        /from ("|')(https:\/\/.+)("|')/g,
+        HTTP_IMPORT_REGEX,
         (str) => {
           return toDenoSpecifier(str);
         },
@@ -56,7 +57,9 @@ export default function httpsResolve() {
         );
 
         if (!dependency || !dependency.code) {
-          throw new Error('invaraint: module not found during resolveId()');
+          throw new Error(
+            `invariant: module ${importee} in ${importer} not found during id resolution`,
+          );
         }
 
         return toDenoSpecifier(dependency.code.specifier);
@@ -74,7 +77,7 @@ export default function httpsResolve() {
         );
 
         if (!module) {
-          throw new Error('invariant: deno module not found during load()');
+          throw new Error(`invariant: module ${id} not found during load`);
         }
 
         return await Deno.readTextFile(module.emit);
