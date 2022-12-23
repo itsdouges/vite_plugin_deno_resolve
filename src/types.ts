@@ -50,3 +50,13 @@ export interface ModuleInfo {
     { name: string; version: string; dependencies: string[] }
   >;
 }
+
+export interface PluginConfig {
+  cacheCache: CacheCache;
+  infoCache: InfoCache;
+  tempDirectory: string;
+}
+
+export type CacheCache = Map<string, true>;
+
+export type InfoCache = Map<string, ModuleInfo>;

@@ -1,5 +1,5 @@
-import { denoCache, denoInfo } from './deno.ts';
-import type { ESModule } from './types.ts';
+import { createDeno } from './deno.ts';
+import type { ESModule, PluginConfig } from './types.ts';
 
 const DENO_SPECIFIER = 'deno:';
 const HTTP_IMPORT_REGEX = /from ("|')(https:\/\/.+)("|')/g;
@@ -12,7 +12,9 @@ function toDenoSpecifier(specifier: string) {
   return specifier.replace('https://', DENO_SPECIFIER);
 }
 
-export default function httpsResolve() {
+export default function httpsResolve(config: PluginConfig) {
+  const deno = createDeno(config);
+
   return {
     name: 'vite:deno-https-resolve',
 
@@ -40,7 +42,7 @@ export default function httpsResolve() {
         // We have found a top level import for a Deno module.
         const specifier = toHttpsSpecifier(importee);
 
-        await denoCache(specifier);
+        await deno.cache(specifier);
 
         return importee;
       }
@@ -48,7 +50,7 @@ export default function httpsResolve() {
       if (importer.indexOf(DENO_SPECIFIER) === 0) {
         // We've found an import inside a deno module, let's find it!
         const specifier = toHttpsSpecifier(importer);
-        const info = await denoInfo(specifier);
+        const info = await deno.info(specifier);
         const module = info.modules.find((mod): mod is ESModule =>
           mod.specifier === specifier
         );
@@ -71,7 +73,7 @@ export default function httpsResolve() {
     async load(id: string) {
       if (id.indexOf(DENO_SPECIFIER) === 0) {
         const specifier = toHttpsSpecifier(id);
-        const info = await denoInfo(specifier);
+        const info = await deno.info(specifier);
         const module = info.modules.find((mod): mod is ESModule =>
           mod.specifier === specifier
         );
