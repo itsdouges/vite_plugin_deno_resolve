@@ -4,6 +4,24 @@ export interface NPMModule {
   npmPackage: string;
 }
 
+export type MediaType =
+  | 'JavaScript'
+  | 'Mjs'
+  | 'Cjs'
+  | 'JSX'
+  | 'TypeScript'
+  | 'Mts'
+  | 'Cts'
+  | 'Dts'
+  | 'Dmts'
+  | 'Dcts'
+  | 'TSX'
+  | 'Json'
+  | 'Wasm'
+  | 'TsBuildInfo'
+  | 'SourceMap'
+  | 'Unknown';
+
 export interface ESModule {
   kind: 'esm';
   specifier: string;
@@ -11,7 +29,7 @@ export interface ESModule {
   emit: string;
   map: string | null;
   size: number;
-  mediaType: 'TypeScript' | 'JavaScript';
+  mediaType: MediaType;
   dependencies: {
     specifier: string;
     code: {

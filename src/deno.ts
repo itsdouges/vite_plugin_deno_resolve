@@ -3,6 +3,7 @@ import { ModuleInfo } from './types.ts';
 
 const cacheCache = new Map<string, true>();
 const infoCache = new Map<string, ModuleInfo>();
+const tempDir = Deno.makeTempDirSync();
 
 export async function denoCache(name: string): Promise<void> {
   if (cacheCache.has(name)) {
@@ -10,13 +11,16 @@ export async function denoCache(name: string): Promise<void> {
   }
 
   const p = Deno.run({
-    cmd: ['deno', 'cache', name],
+    cmd: [Deno.execPath(), 'cache', name],
+    cwd: tempDir,
   });
 
   const status = await p.status();
   if (!status.success) {
-    throw new Error('could not cache ' + name);
+    throw new Error(`invariant: could not cache ${name}`);
   }
+
+  p.close();
 
   cacheCache.set(name, true);
 }
@@ -28,20 +32,23 @@ export async function denoInfo(name: string): Promise<ModuleInfo> {
   }
 
   const p = Deno.run({
-    cmd: ['deno', 'info', name, '--json'],
+    cmd: [Deno.execPath(), 'info', name, '--json'],
     stdout: 'piped',
     stderr: 'piped',
+    cwd: tempDir,
   });
 
   const status = await p.status();
   if (!status.success) {
-    throw new Error('could not read deno cache dirs');
+    throw new Error(`invariant: could not get info on ${name}`);
   }
 
   const output = await p.output();
   const parsed: ModuleInfo = JSON.parse(new TextDecoder().decode(output));
 
   infoCache.set(name, parsed);
+
+  p.close();
 
   return parsed;
 }
