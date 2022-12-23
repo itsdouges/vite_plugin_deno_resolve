@@ -1,10 +1,6 @@
 import { denoCache, denoInfo } from './deno.ts';
 import type { ESModule } from './types.ts';
 
-async function ensureCached(name: string) {
-  await denoCache(name);
-}
-
 export default function httpsResolve() {
   return {
     name: 'vite:deno-https-resolve',
@@ -31,7 +27,7 @@ export default function httpsResolve() {
         // We have found a top level import for a Deno module.
         const specifier = importee.replace('deno:', '');
 
-        await ensureCached(specifier);
+        await denoCache(specifier);
 
         return specifier;
       }
