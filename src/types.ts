@@ -1,59 +1,59 @@
 export type MediaType =
-  | 'JavaScript'
-  | 'Mjs'
   | 'Cjs'
-  | 'JSX'
-  | 'TypeScript'
-  | 'Mts'
   | 'Cts'
-  | 'Dts'
-  | 'Dmts'
   | 'Dcts'
-  | 'TSX'
+  | 'Dmts'
+  | 'Dts'
+  | 'JavaScript'
   | 'Json'
-  | 'Wasm'
-  | 'TsBuildInfo'
+  | 'JSX'
+  | 'Mjs'
+  | 'Mts'
   | 'SourceMap'
-  | 'Unknown';
+  | 'TsBuildInfo'
+  | 'TSX'
+  | 'TypeScript'
+  | 'Unknown'
+  | 'Wasm';
 
 export interface NPMModule {
+  emit: string | null;
   kind: 'npm';
-  specifier: string;
-  npmPackage: string;
   local: string;
-  emit: string;
+  npmPackage: string;
+  specifier: string;
 }
 
 export interface ESModule {
-  kind: 'esm';
-  specifier: string;
-  local: string;
-  emit: string;
-  map: string | null;
-  size: number;
-  mediaType: MediaType;
   dependencies?: {
-    specifier: string;
     code: {
-      specifier: string;
       span: {
         start: { line: number; character: number };
         end: { line: number; character: number };
       };
+      specifier: string;
     };
+    specifier: string;
   }[];
+  emit: string | null;
+  kind: 'esm';
+  local: string;
+  map: string | null;
+  mediaType: MediaType;
+  size: number;
+  specifier: string;
 }
 
 export type Module = ESModule | NPMModule;
 
 export interface ModuleInfo {
-  roots: string[];
   modules: Module[];
-  redirects: Record<string, string>;
   npmPackages: Record<
     string,
     { name: string; version: string; dependencies: string[] }
   >;
+  redirects: Record<string, string>;
+  roots: string[];
 }
 
 export interface PluginConfig {
