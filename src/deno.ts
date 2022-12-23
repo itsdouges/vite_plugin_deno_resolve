@@ -11,6 +11,7 @@ export function createDeno(
     const p = Deno.run({
       cmd: [Deno.execPath(), 'cache', name],
       cwd: tempDirectory,
+      stdout: 'inherit',
     });
 
     const status = await p.status();
