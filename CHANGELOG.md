@@ -1,4 +1,4 @@
-# vite_deno_resolve
+# vite_plugin_deno_resolve
 
 All notable changes to this project will be documented in this file.
 
