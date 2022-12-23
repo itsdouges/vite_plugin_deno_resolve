@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this
 project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.4.0 - 2022-12-23
+
+### Added
+
+- Readme is now populated.
+- The https example now uses React from esm.sh.
+- Deno CLI stdout is now visible when running Vite.
+
 ## 0.3.0 - 2022-12-23
 
 ### Added
