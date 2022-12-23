@@ -28,32 +28,97 @@ export default function npmResolve(config: PluginConfig) {
       if (!id.startsWith('npm:')) {
         return null;
       }
-      // strip npm: prefix
-      id = id.substring(4);
+
+      const ref = npmPackageReference(id);
 
       // TODO(bartlomieju): this shouldn't be called on each load, it can
       // be cached per run
       const cacheInfo = await deno.cacheInfo();
       const npmCache = cacheInfo.npmCache;
 
-      // TODO(bartlomieju): handle subpath
-      let specifier, version;
+      const specifier = ref.name;
+      const version = ref.versionReq;
 
-      if (id.startsWith('@')) {
-        const versionIndex = id.lastIndexOf('@');
-        specifier = id.substring(0, versionIndex);
-        version = id.substring(versionIndex + 1);
-      } else {
-        const parts = id.split('@');
-        specifier = parts[0];
-        version = parts[1];
+      if (!version) {
+        throw new Error(`Version not specified for ${specifier}`);
       }
 
-      console.log(specifier, version);
+      console.log('NpmPackageReference', ref);
       const moduleDirPath =
         `${npmCache}/registry.npmjs.org/${specifier}/${version}`;
 
-      return await Deno.readTextFile(`${moduleDirPath}/index.js`);
+      const packageJson = JSON.parse(
+        await Deno.readTextFile(
+          `${moduleDirPath}/package.json`,
+        ),
+      );
+
+      let file = packageJson.main || 'index.js';
+      if (ref.subPath) {
+        // TODO(bartlomieju): handle other extensions
+        file = `${ref.subPath}.js`;
+      }
+      return await Deno.readTextFile(`${moduleDirPath}/${file}`);
     },
+  };
+}
+
+interface NpmPackageReference {
+  name: string;
+  versionReq: string | null;
+  subPath: string | null;
+}
+function npmPackageReference(specifier: string): NpmPackageReference {
+  if (!specifier.startsWith('npm:')) {
+    throw new Error(`Invalid npm package reference: ${specifier}`);
+  }
+
+  specifier = specifier.substring(4);
+  const parts = specifier.split('/');
+  let namePartLen;
+  if (specifier.startsWith('@')) {
+    namePartLen = 2;
+  } else {
+    namePartLen = 1;
+  }
+  if (parts.length < namePartLen) {
+    throw new Error(`Invalid npm package reference: ${specifier}`);
+  }
+  const nameParts = parts.slice(0, namePartLen);
+  let lastNamePart = nameParts[nameParts.length - 1];
+  const atIndex = lastNamePart.lastIndexOf('@');
+  let version;
+  let name;
+
+  if (atIndex !== -1) {
+    version = lastNamePart.substring(atIndex + 1);
+    lastNamePart = lastNamePart.substring(0, atIndex);
+
+    if (namePartLen === 1) {
+      name = lastNamePart;
+    } else {
+      name = `${nameParts[0]}/${lastNamePart}`;
+    }
+  } else {
+    name = nameParts.join('/');
+  }
+
+  let subPath = null;
+  if (parts.length !== namePartLen) {
+    subPath = parts.slice(namePartLen).join('/');
+  }
+
+  // TODO(bartlomieju): handle version specified after subpath
+
+  if (!name) {
+    throw new Error(
+      `Invalid npm package reference: ${specifier}. Did not contain a package name`,
+    );
+  }
+
+  return {
+    name,
+    versionReq: version || null,
+    subPath,
   };
 }
