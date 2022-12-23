@@ -1,0 +1,18 @@
+.button {
+    border-radius: 8px;
+    border: 4px solid currentColor;
+    font-size: 30px;
+    font-weight: 600;
+    padding: 8px;
+    text-transform: uppercase;
+}
+
+.button__pink {
+    color: pink;
+    background-color: transparent;
+}
+
+.button__pink:active {
+    color: white;
+    background-color: pink;
+}

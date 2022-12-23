@@ -78,7 +78,7 @@ export default function httpsResolve(config: PluginConfig) {
           throw new Error(`invariant: module ${id} not found during load`);
         }
 
-        return await Deno.readTextFile(module.emit);
+        return await Deno.readTextFile(module.emit || module.local);
       }
 
       return null;
