@@ -22,6 +22,10 @@ export default defineConfig({
 });
 ```
 
+If you're using VSCode make sure to install the
+[Deno VSCode extension](https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno)
+and enable `deno.enable` in your VSCode workspace settings.
+
 ## Local development
 
 ```sh
