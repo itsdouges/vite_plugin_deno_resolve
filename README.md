@@ -1,6 +1,8 @@
 # vite_plugin_deno_resolve
 
-A Vite plugin which locates modules using Deno.
+This plugin enables Vite to resolve modules using [Deno](https://deno.land).
+Currently only remote modules are resolved through Deno with local modules using
+Vite's default behavior.
 
 ## Requirements
 
@@ -9,7 +11,7 @@ A Vite plugin which locates modules using Deno.
 
 ## Install
 
-Import the plugin to your Vite config.
+Import the plugin to your Vite config and pass it to the plugins array.
 
 ```js
 import { defineConfig } from 'npm:vite@3.2.4';
