@@ -43,7 +43,8 @@
     "https://deno.land/x/case@2.1.1/upperFirstCase.ts": "2b083db95744105a4f4accefe66dcd09390634514abf757fc580a7ebad58bf4f",
     "https://deno.land/x/case@2.1.1/vendor/camelCaseRegexp.ts": "7d9ff02aad4ab6429eeab7c7353f7bcdd6cc5909a8bd3dda97918c8bbb7621ae",
     "https://deno.land/x/case@2.1.1/vendor/camelCaseUpperRegexp.ts": "292de54a698370f90adcdf95727993d09888b7f33d17f72f8e54ba75f7791787",
-    "https://deno.land/x/case@2.1.1/vendor/nonWordRegexp.ts": "c1a052629a694144b48c66b0175a22a83f4d61cb40f4e45293fc5d6b123f927e"
+    "https://deno.land/x/case@2.1.1/vendor/nonWordRegexp.ts": "c1a052629a694144b48c66b0175a22a83f4d61cb40f4e45293fc5d6b123f927e",
+    "https://deno.land/x/url_join@1.0.0/mod.ts": "d3c7007e3ab15594e54d5b90dce623b3e274a726e0cdf57858e7ecab77a0166c"
   },
   "npm": {
     "specifiers": { "vite@3.2.4": "vite@3.2.4" },
