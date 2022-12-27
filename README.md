@@ -34,6 +34,6 @@ and if missing, cached locally.
 ## Local development
 
 ```sh
-deno task https # Start https example
-deno task npm   # Start npm example
+deno task url # Start url example
+deno task npm # Start npm example
 ```

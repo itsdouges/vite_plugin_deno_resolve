@@ -1,3 +1,4 @@
+import { join, toFileUrl } from 'https://deno.land/std@0.170.0/path/mod.ts';
 import { createDeno } from './deno.ts';
 import type { ESModule, PluginConfig } from './types.ts';
 
@@ -38,6 +39,14 @@ export default function httpsResolve(config: PluginConfig) {
     },
 
     async resolveId(importee: string, importer: string | undefined) {
+      if (importee[0].startsWith('/')) {
+        // Absolute import
+        console.log(toFileUrl(importee));
+      } else if (importer && importee[0].startsWith('.')) {
+        // Relative import
+        console.log(toFileUrl(join(importer, importee)));
+      }
+
       if (importee.indexOf(DENO_SPECIFIER) === 0) {
         // We have found a top level import for a Deno module.
         const specifier = toHttpsSpecifier(importee);
