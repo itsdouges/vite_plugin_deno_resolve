@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this
 project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.5.0 - 2022-12-27
+
+### Changed
+
+- The remote resolver has been refactored to internally use URLs for all
+  resolved IDs.
+- Example folder now contains the vite config.
+
+### Fixed
+
+- The readme has been updated with links to Deno information.
+
 ## 0.4.0 - 2022-12-23
 
 ### Added
