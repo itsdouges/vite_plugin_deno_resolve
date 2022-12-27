@@ -1,8 +1,10 @@
 # vite_plugin_deno_resolve
 
-This plugin enables Vite to resolve modules using [Deno](https://deno.land).
-Currently only remote modules are resolved through Deno with local modules using
-Vite's default behavior.
+This plugin enables [Vite](https://vitejs.dev) to resolve modules using
+[Deno](https://deno.land), the easiest, most secure JavaScript runtime.
+
+See:
+[Deno feature highlights](https://deno.land/manual@v1.29.1/introduction#feature-highlights).
 
 ## Requirements
 
@@ -22,9 +24,12 @@ export default defineConfig({
 });
 ```
 
-If you're using VSCode make sure to install the
-[Deno VSCode extension](https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno)
-and enable `deno.enable` in your VSCode workspace settings.
+> Using VSCode? Make sure to install the
+> [Deno extension](https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno)
+> and set `deno.enable` in your VSCode workspace settings.
+
+You're all set! Now when running Vite all dependencies will be resolved by Deno
+and if missing, cached locally.
 
 ## Local development
 
