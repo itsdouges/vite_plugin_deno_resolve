@@ -2,15 +2,15 @@ import { join, toFileUrl } from 'https://deno.land/std@0.170.0/path/mod.ts';
 import { createDeno } from './deno.ts';
 import type { ESModule, PluginConfig } from './types.ts';
 
-const DENO_SPECIFIER = 'deno:';
-const HTTP_IMPORT_REGEX = /from ("|')(https:\/\/.+)("|')/g;
+const URL_NAMESPACE = '@url/';
+const HTTP_IMPORT_REGEX = /from ("|')(https?:\/\/.+)("|')/g;
 
-function toHttpsSpecifier(specifier: string) {
-  return specifier.replace(DENO_SPECIFIER, 'https://');
+function toURLSpecifier(specifier: string) {
+  return new URL(specifier.replace(URL_NAMESPACE, '')).href;
 }
 
-function toDenoSpecifier(specifier: string) {
-  return specifier.replace('https://', DENO_SPECIFIER);
+function toURLNamespace(specifier: string) {
+  return URL_NAMESPACE + specifier;
 }
 
 export default function httpsResolve(config: PluginConfig) {
@@ -22,7 +22,7 @@ export default function httpsResolve(config: PluginConfig) {
     enforce: 'pre' as const,
 
     transform(code: string) {
-      if (code.indexOf('from \'https://') === -1) {
+      if (code.indexOf('from \'http') === -1) {
         return;
       }
 
@@ -31,7 +31,7 @@ export default function httpsResolve(config: PluginConfig) {
       const replaced = code.replaceAll(
         HTTP_IMPORT_REGEX,
         (str) => {
-          return toDenoSpecifier(str);
+          return str.replace('from \'', 'from \'' + URL_NAMESPACE);
         },
       );
 
@@ -39,26 +39,29 @@ export default function httpsResolve(config: PluginConfig) {
     },
 
     async resolveId(importee: string, importer: string | undefined) {
-      if (importee[0].startsWith('/')) {
-        // Absolute import
-        console.log(toFileUrl(importee));
-      } else if (importer && importee[0].startsWith('.')) {
-        // Relative import
-        console.log(toFileUrl(join(importer, importee)));
-      }
+      // console.log(importee);
 
-      if (importee.indexOf(DENO_SPECIFIER) === 0) {
+      // if (importee[0].startsWith('/')) {
+      //   // Absolute import
+      //   console.log(toFileUrl(importee));
+      // } else if (importee[0].startsWith('.')) {
+      //   // Relative import
+      //   console.log(importer);
+      //   console.log(toFileUrl(join(importer || appRoot, importee)));
+      // }
+
+      if (importee.indexOf(URL_NAMESPACE) === 0) {
         // We have found a top level import for a Deno module.
-        const specifier = toHttpsSpecifier(importee);
+        const specifier = toURLSpecifier(importee);
 
         await deno.cache(specifier);
 
-        return importee;
+        return toURLNamespace(specifier);
       }
 
-      if (importer && importer.indexOf(DENO_SPECIFIER) === 0) {
+      if (importer && importer.indexOf(URL_NAMESPACE) === 0) {
         // We've found an import inside a deno module, let's find it!
-        const specifier = toHttpsSpecifier(importer);
+        const specifier = toURLSpecifier(importer);
         const info = await deno.info(specifier);
         const module = info.modules.find((mod): mod is ESModule =>
           mod.specifier === specifier
@@ -69,19 +72,19 @@ export default function httpsResolve(config: PluginConfig) {
 
         if (!dependency) {
           throw new Error(
-            `invariant: module ${importee} in ${importer} not found during id resolution`,
+            `invariant: module ${importee} in ${importer} was not found during id resolution`,
           );
         }
 
-        return toDenoSpecifier(dependency.code.specifier);
+        return toURLNamespace(dependency.code.specifier);
       }
 
       return null;
     },
 
     async load(id: string) {
-      if (id.indexOf(DENO_SPECIFIER) === 0) {
-        const specifier = toHttpsSpecifier(id);
+      if (id.indexOf(URL_NAMESPACE) === 0) {
+        const specifier = toURLSpecifier(id);
         const module = await deno.module(specifier);
         if (!module) {
           throw new Error(`invariant: module ${id} not found during load`);
