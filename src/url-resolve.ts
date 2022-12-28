@@ -6,6 +6,8 @@ const URL_NAMESPACE = '@url/';
 const FILE_IMPORT = /^(\.?\/)/;
 const HTTP_IMPORT_REGEX = /from ("|')(https?:\/\/.+)("|')/g;
 const HANDLED_SPECIFIERS = /^(https?|file|\.\/|\/)/;
+const HANDLED_EXT = /\.(m?(t|j)sx?)$/;
+const HAS_EXT = /\.[A-z]{2,}$/;
 
 function toURLNamespace(specifier: URL) {
   return URL_NAMESPACE + specifier;
@@ -64,10 +66,11 @@ export default function httpsResolve(config: PluginConfig) {
 
     async resolveId(importee: string, importer: string | undefined) {
       const importURL = toURL(importee, importer);
-
       if (
-        !importURL || importURL.protocol === 'file:'
+        !importURL ||
+        (HAS_EXT.exec(importURL.href) && !HANDLED_EXT.exec(importURL.href))
       ) {
+        // Importee not handled by us return early and let someone else handle it.
         return null;
       }
 
@@ -78,9 +81,8 @@ export default function httpsResolve(config: PluginConfig) {
 
     async load(id: string) {
       const url = toURL(id);
-      if (url && url.protocol !== 'file:') {
+      if (url) {
         const module = await deno.module(url);
-
         if (!module) {
           throw new Error(`invariant: ${url} not found`);
         }
