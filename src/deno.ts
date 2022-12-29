@@ -3,45 +3,56 @@ import { CacheInfo, Module, ModuleInfo, PluginConfig } from './types.ts';
 export function createDeno(
   { cacheCache, infoCache, moduleCache, tempDirectory }: PluginConfig,
 ) {
-  async function cache(name: string): Promise<void> {
-    if (cacheCache.has(name)) {
+  async function cache(name: string | URL): Promise<void> {
+    const nameStr = name.toString();
+
+    if (
+      cacheCache.has(nameStr) ||
+      (typeof name !== 'string' && name.protocol === 'file:')
+    ) {
       return;
     }
 
     const p = Deno.run({
-      cmd: [Deno.execPath(), 'cache', name],
+      cmd: [Deno.execPath(), 'cache', nameStr],
       cwd: tempDirectory,
       stdout: 'inherit',
     });
 
     const status = await p.status();
     if (!status.success) {
-      throw new Error(`invariant: could not cache ${name}`);
+      throw new Error(`invariant: could not cache ${nameStr}`);
     }
 
     p.close();
 
-    cacheCache.set(name, true);
+    cacheCache.set(nameStr, true);
   }
 
-  async function module(name: string): Promise<Module | undefined> {
-    const foundModule = moduleCache.get(name);
+  async function module(name: string | URL): Promise<Module | undefined> {
+    const nameStr = name.toString();
+    const foundModule = moduleCache.get(nameStr);
     if (!foundModule) {
-      await info(name);
-      return moduleCache.get(name);
+      try {
+        await info(nameStr);
+        return moduleCache.get(nameStr);
+      } catch (_) {
+        return undefined;
+      }
     }
 
     return foundModule;
   }
 
-  async function info(name: string): Promise<ModuleInfo> {
-    const cachedInfo = infoCache.get(name);
+  async function info(name: string | URL): Promise<ModuleInfo> {
+    const nameStr = name.toString();
+    const cachedInfo = infoCache.get(nameStr);
     if (cachedInfo) {
       return cachedInfo;
     }
 
     const p = Deno.run({
-      cmd: [Deno.execPath(), 'info', name, '--json'],
+      cmd: [Deno.execPath(), 'info', nameStr, '--json'],
       stdout: 'piped',
       stderr: 'piped',
       cwd: tempDirectory,
@@ -49,13 +60,13 @@ export function createDeno(
 
     const status = await p.status();
     if (!status.success) {
-      throw new Error(`invariant: could not get info on ${name}`);
+      throw new Error(`invariant: could not get info on ${nameStr}`);
     }
 
     const output = await p.output();
     const moduleInfo: ModuleInfo = JSON.parse(new TextDecoder().decode(output));
 
-    infoCache.set(name, moduleInfo);
+    infoCache.set(nameStr, moduleInfo);
 
     for (const module of moduleInfo.modules) {
       moduleCache.set(module.specifier, module);

@@ -1,4 +1,4 @@
-import httpsResolve from './src/https-resolve.ts';
+import urlResolve from './src/url-resolve.ts';
 import npmResolve from './src/npm-resolve.ts';
 import { Module, ModuleInfo } from './src/types.ts';
 
@@ -15,5 +15,5 @@ export default function denoResolve() {
     tempDirectory,
   };
 
-  return [httpsResolve(config), npmResolve(config)];
+  return [urlResolve(config), npmResolve(config)];
 }
