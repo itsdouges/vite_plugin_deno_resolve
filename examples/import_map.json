@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "react/jsx-dev-runtime": "",
+    "react/jsx-runtime": ""
+  }
+}
