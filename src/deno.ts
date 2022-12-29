@@ -87,7 +87,7 @@ export function createDeno(
 
     const status = await p.status();
     if (!status.success) {
-      throw new Error(`invariant: could not get info on ${name}`);
+      throw new Error(`invariant: could not get cache info`);
     }
 
     const output = await p.output();
