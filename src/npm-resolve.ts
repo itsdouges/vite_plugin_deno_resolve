@@ -11,15 +11,17 @@ export default function npmResolve(config: PluginConfig) {
 
     enforce: 'pre' as const,
 
-    async resolveId(importee: string, importer: string | undefined) {
-      console.log('resolveId npm', importee, importer);
+    async resolveId(id: string, importer: string | undefined) {
+      // console.log('resolveId npm', id, importer);
 
-      if (importee.startsWith('npm:')) {
-        await deno.cache(importee);
-        return importee;
+      if (id.startsWith('npm:')) {
+        await deno.cache(id);
+        return id;
+      } else {
+        const r = await this.resolve(id, importer, { skipSelf: true })
+        console.log(`resolve result id: ${id} importer: ${importer} r:`, r);
+        return r;
       }
-
-      return null;
     },
 
     async load(id: string) {
