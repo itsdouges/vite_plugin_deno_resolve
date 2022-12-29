@@ -15,6 +15,15 @@ export default function npmResolve(config: PluginConfig) {
 
     enforce: 'pre' as const,
 
+    configResolved(config) {
+      const previousCreateResolver = config.createResolver;
+      const createResolver: typeof config['createResolver'] = (options) => {
+        return previousCreateResolver(options);
+      };
+
+      config.createResolver = createResolver;
+    },
+
     async resolveId(id: string, importer: string | undefined) {
       // console.log('resolveId npm', id, importer);
 
