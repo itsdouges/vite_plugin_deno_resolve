@@ -1,12 +1,16 @@
 import { createDeno } from './deno.ts';
 import { PluginConfig } from './types.ts';
 
+function createPlugin(plugin: import('npm:vite').Plugin) {
+  return plugin;
+}
+
 export default function npmResolve(config: PluginConfig) {
   // TODO(bartlomieju): both plugins should use the same instance, or maybe
   // both plugins should be combined.
   const deno = createDeno(config);
 
-  return {
+  return createPlugin({
     name: 'vite:deno-npm-resolve',
 
     enforce: 'pre' as const,
@@ -18,7 +22,7 @@ export default function npmResolve(config: PluginConfig) {
         await deno.cache(id);
         return id;
       } else {
-        const r = await this.resolve(id, importer, { skipSelf: true })
+        const r = await this.resolve(id, importer, { skipSelf: true });
         console.log(`resolve result id: ${id} importer: ${importer} r:`, r);
         return r;
       }
@@ -62,7 +66,7 @@ export default function npmResolve(config: PluginConfig) {
       }
       return await Deno.readTextFile(`${moduleDirPath}/${file}`);
     },
-  };
+  });
 }
 
 interface NpmPackageReference {
@@ -70,6 +74,7 @@ interface NpmPackageReference {
   versionReq: string | null;
   subPath: string | null;
 }
+
 function npmPackageReference(specifier: string): NpmPackageReference {
   if (!specifier.startsWith('npm:')) {
     throw new Error(`Invalid npm package reference: ${specifier}`);
