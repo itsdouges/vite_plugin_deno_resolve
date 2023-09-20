@@ -46,7 +46,7 @@ export default function httpsResolve(config: PluginConfig) {
     enforce: 'pre' as const,
 
     transform(code: string) {
-      if (code.indexOf('from \'http') === -1) {
+      if (code.indexOf('from \'http') === -1 && code.indexOf('from \"http') === -1) {
         return;
       }
 
@@ -55,7 +55,9 @@ export default function httpsResolve(config: PluginConfig) {
       const replaced = code.replaceAll(
         HTTP_IMPORT_REGEX,
         (str) => {
-          return str.replace('from \'', 'from \'' + URL_NAMESPACE);
+          return str
+            .replace('from \'', 'from \'' + URL_NAMESPACE)
+            .replace('from \"', 'from \"' + URL_NAMESPACE);
         },
       );
 
