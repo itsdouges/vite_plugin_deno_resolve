@@ -46,7 +46,6 @@ export default function httpsResolve(config: PluginConfig) {
     enforce: 'pre' as const,
 
     transform(code: string) {
-      if (code.indexOf('from \'http') === -1) {
       if (code.indexOf('from \'http') === -1 && code.indexOf('from \"http') === -1) {
         return;
       }
